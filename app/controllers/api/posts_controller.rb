@@ -6,13 +6,16 @@ class Api::PostsController < ApplicationController
     tag = params[:tag]
     sortBy = params[:sortBy]
     direction = params[:direction]
+
+    if tag.empty?
+      return render json: { "error": "Tags parameter is required" }
+    end
+
     url = "https://hatchways.io/api/assessment/blog/posts?tag=#{tag}&sortBy=#{sortBy}&direction=#{direction}"
     response = open(url).read
     data = JSON.parse(response)
 
-    if tag.empty?
-      render json: { "error": "Tags parameter is required" }
-    elsif data["posts"].empty?
+    if data["posts"].empty?
       render json: { "error": "Tags parameter is invalid" }
     # elsif (direction != "asc" || direction != "desc") || !direction.nil?
     #   render json: { "error": "Direction parameter is invalid" }
@@ -25,8 +28,8 @@ class Api::PostsController < ApplicationController
           data = data["posts"].sort_by { |attribute| attribute["#{sortBy}"] }.reverse
         elsif (!direction.nil? && direction == "asc") || direction.nil?
           data = data["posts"].sort_by { |attribute| attribute["#{sortBy}"]}
-        # elsif !direction.nil? && (direction != "asc" || direction != "desc")
-        #   render json: { "error": "Direction parameter is invalid" }
+        elsif !direction.nil? && (direction != "asc" || direction != "desc")
+          return render json: { "error": "Direction parameter is invalid" }
         end
 
         # Check validity of sortBy parameter
@@ -48,4 +51,3 @@ class Api::PostsController < ApplicationController
     render json: {success: true, data: data}, status: 200
   end
 end
-
