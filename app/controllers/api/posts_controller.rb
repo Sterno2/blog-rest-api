@@ -2,6 +2,14 @@ class Api::PostsController < ApplicationController
   require 'open-uri'
   require 'json'
 
+  def ping
+    render json:
+      {
+        "success": true
+      },
+      status: 200
+  end
+
   def index
     tag = params[:tag]
     sortBy = params[:sortBy]
@@ -39,15 +47,5 @@ class Api::PostsController < ApplicationController
         render json: {success: true, data: data}, status: 200
         end
     end
-  end
-
-  def all
-    tag = params[:tag]
-    sortBy = params[:sortBy]
-    direction = params[:direction]
-    url = "https://hatchways.io/api/assessment/blog/posts?tag=tech"
-    response = open(url).read
-    data = JSON.parse(response)
-    render json: {success: true, data: data}, status: 200
   end
 end
